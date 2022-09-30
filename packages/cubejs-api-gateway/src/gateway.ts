@@ -1322,16 +1322,16 @@ class ApiGateway {
         const decoded = <Record<string, any> | null>jwt.decode(auth, { complete: true });
         if (!decoded) {
           throw new CubejsHandlerError(
-            403,
-            'Forbidden',
+            401,
+            'Unauthorized',
             'Unable to decode JWT key'
           );
         }
 
         if (!decoded.header || !decoded.header.kid) {
           throw new CubejsHandlerError(
-            403,
-            'Forbidden',
+            401,
+            'Unauthorized',
             'JWT without kid inside headers'
           );
         }
@@ -1342,8 +1342,8 @@ class ApiGateway {
         );
         if (!jwk) {
           throw new CubejsHandlerError(
-            403,
-            'Forbidden',
+            401,
+            'Unathorized',
             `Unable to verify, JWK with kid: "${decoded.header.kid}" not found`
           );
         }
@@ -1361,7 +1361,7 @@ class ApiGateway {
           req.signedWithPlaygroundAuthSecret = Boolean(internalOptions?.isPlaygroundCheckAuth);
         } catch (e) {
           if (this.enforceSecurityChecks) {
-            throw new CubejsHandlerError(403, 'Forbidden', 'Invalid token');
+            throw new CubejsHandlerError(401, 'Unauthorized', 'Invalid token');
           } else {
             this.log({
               type: (e as Error).message,
@@ -1372,7 +1372,7 @@ class ApiGateway {
         }
       } else if (this.enforceSecurityChecks) {
         // @todo Move it to 401 or 400
-        throw new CubejsHandlerError(403, 'Forbidden', 'Authorization header isn\'t set');
+        throw new CubejsHandlerError(401, 'Unauthorized', 'Authorization header isn\'t set');
       }
     };
   }
